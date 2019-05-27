@@ -146,11 +146,21 @@ interface ASTQQuery<Node = any> {
    * Internal query's AST object builded when compiled. 
    * @internal
    */
-  ast: ASTYNode
+  ast: ASTyNode
+
+  /**
+   * Serializes this query instance as a json string.
+   */
+  serialize(): string
+
+  /**
+   * Same as [[serialize]] but it returns the JSON parsed object.
+   */
+  toJSONObject(): SerializedNode
 
   /**
    * When giving [[trace]] equals true to [[execute]] the query object will be filled with an array of query
-   * step trace objects that contain the state of the search on each stap, before and after it finish, the
+   * step trace objects that contain the state of the search on each step, before and after it finish, the
    * current matched values, timings levels. Whit this information is possible to represent visually the
    * search process with timings and how it was resolved, step, byt step.
    */
@@ -164,10 +174,10 @@ interface ASTQQuery<Node = any> {
 
 export = ASTQClass
 
-type QueryExpressions = 'Query'|'Path'|'Step'|'Step'|'Axis'|'Match'|'Match'|'Match'|'Filter'|'ConditionalBinary'|'ConditionalTernary'|'Logical'|'Logical'|'Bitwise'|'Bitwise'|'Bitwise'|'Relational'|'Bitwise'|'Arithmetical'|'Arithmetical'|'Unary'|'FuncCall'|'Attribute'|'Attribute'|'Param'|'Identifier'|'LiteralString'|'LiteralString'|'LiteralRegExp'|'LiteralNumber'|'LiteralNumber'|'LiteralNumber'|'LiteralNumber'|'LiteralNumber'|'LiteralValue'|'LiteralValue'|'LiteralValue'|'LiteralValue'|'LiteralValue'
+type QueryExpressions = 'Query' | 'Path' | 'Step' | 'Step' | 'Axis' | 'Match' | 'Match' | 'Match' | 'Filter' | 'ConditionalBinary' | 'ConditionalTernary' | 'Logical' | 'Logical' | 'Bitwise' | 'Bitwise' | 'Bitwise' | 'Relational' | 'Bitwise' | 'Arithmetical' | 'Arithmetical' | 'Unary' | 'FuncCall' | 'Attribute' | 'Attribute' | 'Param' | 'Identifier' | 'LiteralString' | 'LiteralString' | 'LiteralRegExp' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue'
 
-interface QueryStepTrace{
-  event: 'end'|'begin',
+interface QueryStepTrace {
+  event: 'end' | 'begin',
   prefix1: string
   prefix2: string
   queryType: QueryExpressions
@@ -186,24 +196,24 @@ interface QueryStepTrace{
 * Internal Node implementation of the query's AST. https://github.com/rse/asty
 * @internal 
 * */
-interface ASTYNode {
+interface ASTyNode {
   //   add: add(...args) { if (args.length === 0) throw new Error("add: invalid number of arguments"); let
   //   _add = node => {…}
   attrs(): ASTYNodeAttrs
-  child(pos: number): ASTYNode | undefined
-  childs(): ASTYNode[]
-  childs(...c: ASTYNode[]): void
-  create(T: string, A: ASTYNodeAttrs, C: DumpedNode[]): ASTYNode
+  child(pos: number): ASTyNode | undefined
+  childs(): ASTyNode[]
+  childs(...c: ASTyNode[]): void
+  create(T: string, A: ASTYNodeAttrs, C: SerializedNode[]): ASTyNode
   // del: del(...args) { if (args.length === 0) throw new Error("del: invalid number of arguments");
   // args.forEach(node => {…}
   dump(maxDepth: number, colorize: (type: string, txt: string) => string): string
   // get: get(...args) { if (args.length !== 1) throw new Error("get: invalid number of arguments"); if
   // (typeof args[0] === "object" && args[0] instanceof Array) { return args[0].map(key => {…}
-  init(ctx: ASTYCtx, T: string, A: ASTYNodeAttrs, C: DumpedNode[]): ASTYNode
+  init(ctx: ASTYCtx, T: string, A: ASTYNodeAttrs, C: SerializedNode[]): ASTyNode
   ins(pos: number, ...args: any[]): void
-  merge(node: ASTYNode, takePos: boolean, attrMap: ASTYNodeAttrs): ASTYNode
+  merge(node: ASTyNode, takePos: boolean, attrMap: ASTYNodeAttrs): ASTyNode
   nth(): any
-  parent(): ASTYNode
+  parent(): ASTyNode
   pos(line: number, column: number, offset: number): void
   pos(): DumpedNodeLocation
   /** 
@@ -227,7 +237,7 @@ interface ASTYNodeAttrs {
 * Serialized version of `ASTYNode` Format of ASTYNode.serialize output string
 * @internal 
 * */
-interface DumpedNode {
+interface SerializedNode {
   /**
    * Node's type name.
    */
@@ -239,7 +249,7 @@ interface DumpedNode {
   /**
    * Node's children
    */
-  C: DumpedNode[]
+  C: SerializedNode[]
   /**
    * Node's attributes
    */

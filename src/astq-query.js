@@ -77,6 +77,20 @@ export default class ASTQQuery {
         return this.ast.dump()
     }
 
+    /**
+     * Serializes this query instance as a json string.
+     */
+    serialize () {
+      return this.ast.serialize()
+    }
+
+    /**
+     * Same as [[serialize]] but it returns the JSON parsed object.
+     */
+    toJSONObject () {
+      return JSON.parse(this.ast.serialize())
+    }
+
     /*  execute the query AST onto node  */
     execute (node, adapter, params, funcs, trace) {
         if (trace)
