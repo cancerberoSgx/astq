@@ -81,14 +81,14 @@ export default class ASTQQuery {
      * Serializes this query instance as a json string.
      */
     serialize () {
-      return this.ast.serialize()
+        return this.ast.serialize()
     }
 
     /**
      * Same as [[serialize]] but it returns the JSON parsed object.
      */
     toJSONObject () {
-      return JSON.parse(this.ast.serialize())
+        return JSON.parse(this.ast.serialize())
     }
 
     /*  execute the query AST onto node  */
