@@ -27,47 +27,63 @@
 import util from "./astq-util.js"
 
 export default class ASTQQueryTrace {
-    traceInitialize () {
-        this.lastTrace = []
+    /**
+     * @property trace { boolean | undefined| ((event: 'begin'|'end', queryNode: any, node: Node)=>void) }
+     */
+    constructor (adapter, params, funcs, trace) {
+        this.adapter = adapter
+        this.params  = params
+        this.funcs   = funcs
+        this.trace   = trace
     }
+
+    traceInitialize () {
+        // this.lastTrace = []
+    }
+
     /*  determine output prefix based on tree depth  */
     prefixOf (Q, T) {
-        let depth = 0
+        let depth1 = 0
         let node = Q
         while ((node = node.parent()) !== null)
-            depth++
-        let prefix1 = util.pad("", 4 * depth)
-        depth = 0
+            depth1++
+        let prefix1 = util.pad("", 4 * depth1)
+        let depth2 = 0
         node = T
         while ((node = this.adapter.getParentNode(node, "*")) !== null)
-            depth++
-        let prefix2 = util.pad("", 4 * depth)
-        return { prefix1, prefix2 }
+            depth2++
+        let prefix2 = util.pad("", 4 * depth2)
+        return { prefix1, prefix2, depth1, depth2 }
     }
 
     /*  begin tracing step  */
     traceBegin (Q, T) {
         if (!this.trace)
             return
-        let { prefix1, prefix2 } = this.prefixOf(Q, T)
-        this.lastTrace.push({
-            event: "begin",
-            prefix1,
-            prefix2,
-            queryType: Q.type(),
-            nodeType: this.adapter.getNodeType(T),
-            timestamp: Date.now()
-        })
-        console.log("ASTQ: execute: | " +
+        let { prefix1, prefix2, depth1, depth2 } = this.prefixOf(Q, T)
+        const traceMsg = "ASTQ: execute: | " +
         util.pad(prefix1 + Q.type() + " (", -60) + " | " +
-        prefix2 + this.adapter.getNodeType(T))
+        prefix2 + this.adapter.getNodeType(T)
+        if (typeof this.trace === "function") {
+            this.trace({
+                event: "begin",
+                depth1, depth2,
+                queryNode: Q,
+                node: T,
+                timestamp: Date.now(),
+                traceMsg
+            })
+        }
+        else {
+            console.log(traceMsg)
+        }
     }
 
     /*  end tracing step  */
     traceEnd (Q, T, val) {
         if (!this.trace)
             return
-        let { prefix1, prefix2 } = this.prefixOf(Q, T)
+        let { prefix1, prefix2, depth1, depth2 } = this.prefixOf(Q, T)
         let result
         let resultData = []
         if (val === undefined)
@@ -84,18 +100,24 @@ export default class ASTQQueryTrace {
             result = typeof val + "(" + val + ")"
         if (result.length > 60)
             result = result.substr(0, 60) + "..."
-        this.lastTrace.push({
-            event: "end",
-            prefix1,
-            prefix2,
-            queryType: Q.type(),
-            nodeType: this.adapter.getNodeType(T),
-            timestamp: Date.now(),
-            value: resultData
-        })
-        console.log("ASTQ: execute: | " +
+        const traceMsg = "ASTQ: execute: | " +
             util.pad(prefix1 + "): " + result, -60) + " | " +
-            prefix2 + this.adapter.getNodeType(T))
+            prefix2 + this.adapter.getNodeType(T)
+        if (typeof this.trace === "function" ) {
+            this.trace({
+                event: "end",
+                depth1,
+                depth2,
+                queryNode: Q,
+                node: T,
+                timestamp: Date.now(),
+                traceMsg,
+                matches: val
+            })
+        }
+        else {
+            console.log(traceMsg)
+        }
     }
 }
 

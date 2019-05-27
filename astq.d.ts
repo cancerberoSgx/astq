@@ -71,7 +71,7 @@ astq.func("depth", function (adapter, node) => {
    * processing by `execute`. If [trace] is `true` the compiling is dumped
    * to the console. Returns the query object.
    */
-  compile(selector: string, trace?: boolean): ASTQQuery<Node>;
+  compile(selector: string, trace?: boolean | TraceListener<Node>): ASTQQuery<Node>;
 
   /**
    * Execute the previously compiled `query` (see compile above) at `node`. The
@@ -79,7 +79,7 @@ astq.func("depth", function (adapter, node) => {
    * constructs. If `trace` is `true` the execution is dumped to the console.
    * Returns an array of zero or more matching AST nodes.
    */
-  execute(node: Node, query: ASTQQuery<Node>, params?: any, trace?: boolean): Node[];
+  execute(node: Node, query: ASTQQuery<Node>, params?: any, trace?: boolean | TraceListener<Node>): Node[];
 
   /**
    * Just the convenient combination of compile and execute: 
@@ -90,9 +90,27 @@ astq.func("depth", function (adapter, node) => {
    * constructs. If `trace` is true the compiling and execution is dumped to the
    * console. Returns an array of zero or more matching AST nodes.
    */
-  query(node: Node, selector: String, params?: any, trace?: boolean): Node[];
+  query(node: Node, selector: String, params?: any, trace?: boolean | TraceListener<Node>): Node[];
 }
 
+type TraceListener<Node = any> = (e: StepTraceEvent<Node>) => void
+
+interface StepTraceEvent<Node = any> {
+    depth1: number, 
+    depth2 : number,
+    event: 'begin'|'end', 
+    queryNode: ASTyNode, 
+    node: Node
+    timestamp: number,
+    traceMsg: string,
+    /**
+     * Current nodes matches at the end of this step. 
+     * These nodes will be the input for the next step. 
+     * This property is only defined for event=='end'
+     */
+    matches?: Node[]
+
+} 
 /**
  * For accessing arbitrary AST-style data structures, an adapter has to be
  * provided. By default ASTq has adapters for use with ASTy, XML DOM, Parse5 and
@@ -185,6 +203,8 @@ interface QueryStepTrace {
   event: 'end' | 'begin',
   prefix1: string
   prefix2: string
+  /*** bucket for user meta data */
+  meta?: any
   queryType: QueryExpressions
   nodeType: string
   /**

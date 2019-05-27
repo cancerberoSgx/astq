@@ -26,14 +26,6 @@ import util           from "./astq-util.js"
 import ASTQQueryTrace from "./astq-query-trace.js"
 
 export default class ASTQQueryExec extends ASTQQueryTrace {
-    constructor (adapter, params, funcs, trace) {
-        super()
-        this.adapter = adapter
-        this.params  = params
-        this.funcs   = funcs
-        this.trace   = trace
-    }
-
     execQuery (Q, T) {
         this.traceInitialize()
         this.traceBegin(Q, T)

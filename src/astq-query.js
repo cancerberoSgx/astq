@@ -97,9 +97,7 @@ export default class ASTQQuery {
             console.log("ASTQ: execute: +---------------------------------------" +
                 "-----------------------+----------------------------------------")
         let qe = new ASTQQueryExec(adapter, params, funcs, trace)
-        const result = qe.execQuery(this.ast, node)
-        this.lastTrace = qe.lastTrace || this.lastTrace
-        return result
+        return qe.execQuery(this.ast, node)
     }
 }
 

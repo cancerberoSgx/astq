@@ -179,7 +179,7 @@ describe("ASTq Library", function () {
     })
 
     it("ast.compile returns a ASTQuery instance with its own ast and a dump method", function () {
-        const query = astq.compile("/foo", true)
+        const query = astq.compile("/foo")
         expect(typeof query.ast.childs === "function")
         expect(typeof query.ast.walk === "function")
         expect(query.dump().replace(/[\s]+/gm, " ").trim()).to.equal(`
@@ -192,13 +192,17 @@ Query [1,1]
         expect(query.ast.serialize()).equals("{\"ASTy\":{\"T\":\"Query\",\"L\":{\"L\":1,\"C\":1,\"O\":0},\"C\":[{\"T\":\"Path\",\"L\":{\"L\":1,\"C\":1,\"O\":0},\"C\":[{\"T\":\"Step\",\"L\":{\"L\":1,\"C\":1,\"O\":0},\"C\":[{\"T\":\"Axis\",\"L\":{\"L\":1,\"C\":1,\"O\":0},\"A\":{\"op\":\"/\",\"type\":\"*\"}},{\"T\":\"Match\",\"L\":{\"L\":1,\"C\":2,\"O\":1},\"A\":{\"id\":\"foo\"}}]}]}]}}")
     })
 
-    it("trace should be capturable as data with query.lastTrace", function () {
-        const query = astq.compile( "// * [ depth() == 3 ]", true)
-        expect(query.lastTrace).deep.equals([])
-        const result = astq.execute(node1, query, {}, true)
+    it("step trace should be available when passing update function", function () {
+        const events = []
+        function trace (e) {
+            events.push(e)
+        }
+        const query = astq.compile( "// * [ depth() == 3 ]", trace)
+        expect(events).deep.equals([])
+        const result = astq.execute(node1, query, {}, trace)
         expect(result).to.be.deep.equal([ node5, node6, node7 ])
-        expect(query.lastTrace).to.length.above(10)
-        const lastTraceItem = query.lastTrace[query.lastTrace.length - 1]
+        expect(events).to.length.above(10)
+        const lastTraceItem = events[events.length - 1]
         expect(lastTraceItem.timestamp > 0).to.be.true
     })
 })
