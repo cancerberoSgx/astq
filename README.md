@@ -25,8 +25,6 @@ JavaScript, i.e., it allows you to query nodes of an arbitary AST-style
 hierarchical data structure with the help of a powerful XPath-inspired
 query language. ASTq can operate on arbitrary AST-style data structures
 through the help of pluggable access adapters.
-
-Query Language
 --------------
 
 ASTq uses an XPath-inspired Domain Specific Language (DSL)
@@ -43,14 +41,14 @@ are childs of nodes of type `Bar`, which in turn are childs of nodes of
 type `Foo`, which in turn has to be the start node.
 
 A little bit more sophisticated query, showing more features,
-like axis, filter and optional whitespaces for padding:
+like axis, filter and optional whitespace for padding:
 
     // Foo [ /Bar [ @bar == 'baz1' || @bar == 'baz2' ] && /Quux ]
 
 This means: query and return all nodes anywhere under the start node
-which are of type `Foo` and which have both childs of type `Bar` -- and
-with an attribute `bar` of values `baz1` or `baz2` -- and childs of type
-`Quux`.
+which are of type `Foo` and which have at least the following children nodes: 
+ * one of type `Bar` and attributes `bar` of values `baz1` or `baz2` 
+ * and another child of type `Quux`
 
 ### By Grammar
 
@@ -171,7 +169,7 @@ never cause any resulting nodes theirself.
 
 An expression can be either a ternary/binary conditional expression,
 logical expression, bitwise expression, relational expression,
-arithmethical expression, functional call, attribute reference, query
+arithmetical expression, functional call, attribute reference, query
 parameter, literal value, parenthesis expression or path of a sub-query.
 
     expr             ::= conditional

@@ -37,37 +37,33 @@ export default class ASTQQueryTrace {
         this.trace   = trace
     }
 
-    traceInitialize () {
-        // this.lastTrace = []
-    }
-
     /*  determine output prefix based on tree depth  */
     prefixOf (Q, T) {
-        let depth1 = 0
+        let nodeDepth = 0
         let node = Q
         while ((node = node.parent()) !== null)
-            depth1++
-        let prefix1 = util.pad("", 4 * depth1)
-        let depth2 = 0
+            nodeDepth++
+        let prefix1 = util.pad("", 4 * nodeDepth)
+        let queryNodeDepth = 0
         node = T
         while ((node = this.adapter.getParentNode(node, "*")) !== null)
-            depth2++
-        let prefix2 = util.pad("", 4 * depth2)
-        return { prefix1, prefix2, depth1, depth2 }
+            queryNodeDepth++
+        let prefix2 = util.pad("", 4 * queryNodeDepth)
+        return { prefix1, prefix2, nodeDepth, queryNodeDepth }
     }
 
     /*  begin tracing step  */
     traceBegin (Q, T) {
         if (!this.trace)
             return
-        let { prefix1, prefix2, depth1, depth2 } = this.prefixOf(Q, T)
+        let { prefix1, prefix2, nodeDepth, queryNodeDepth } = this.prefixOf(Q, T)
         const traceMsg = "ASTQ: execute: | " +
         util.pad(prefix1 + Q.type() + " (", -60) + " | " +
         prefix2 + this.adapter.getNodeType(T)
         if (typeof this.trace === "function") {
             this.trace({
                 event: "begin",
-                depth1, depth2,
+                nodeDepth, queryNodeDepth,
                 queryNode: Q,
                 node: T,
                 timestamp: Date.now(),
@@ -83,7 +79,7 @@ export default class ASTQQueryTrace {
     traceEnd (Q, T, val) {
         if (!this.trace)
             return
-        let { prefix1, prefix2, depth1, depth2 } = this.prefixOf(Q, T)
+        let { prefix1, prefix2, nodeDepth, queryNodeDepth } = this.prefixOf(Q, T)
         let result
         let resultData = []
         if (val === undefined)
@@ -106,8 +102,8 @@ export default class ASTQQueryTrace {
         if (typeof this.trace === "function" ) {
             this.trace({
                 event: "end",
-                depth1,
-                depth2,
+                nodeDepth,
+                queryNodeDepth,
                 queryNode: Q,
                 node: T,
                 timestamp: Date.now(),

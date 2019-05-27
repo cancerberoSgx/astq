@@ -27,7 +27,6 @@ import ASTQQueryTrace from "./astq-query-trace.js"
 
 export default class ASTQQueryExec extends ASTQQueryTrace {
     execQuery (Q, T) {
-        this.traceInitialize()
         this.traceBegin(Q, T)
         let output = []
 
