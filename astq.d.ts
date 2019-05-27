@@ -1,4 +1,4 @@
-declare class ASTQClass<Node = any> {
+declare class ASTQ<Node = any> {
 
   /**
    * Create a new ASTQ instance.
@@ -34,7 +34,7 @@ astq.adapter({
 })
 ```
    */
-  adapter(adapter: ASTQAdapter<Node> | ASTQAdapter<Node>[], force?: boolean): ASTQClass;
+  adapter(adapter: ASTQAdapter<Node> | ASTQAdapter<Node>[], force?: boolean): ASTQ;
 
   /**
    * Return the current ASTQ library version details.
@@ -56,7 +56,7 @@ astq.func("depth", function (adapter, node) => {
 })
 ```
    */
-  func(name: string, func: (adapter: ASTQAdapter<Node>, node: Node, ...args: any[]) => any): ASTQClass;
+  func(name: string, func: (adapter: ASTQAdapter<Node>, node: Node, ...args: any[]) => any): ASTQ;
 
   /**
    * Set the upper limit for the internal query cache to `num`, i.e., up to
@@ -64,7 +64,7 @@ astq.func("depth", function (adapter, node) => {
    *
    * Set `num` to 0 to disable the cache at all. Returns the API itself.
    */
-  cache(num: number): ASTQClass;
+  cache(num: number): ASTQ;
 
   /**
    * Compile `selector` DSL into an internal query object for subsequent
@@ -98,7 +98,7 @@ astq.func("depth", function (adapter, node) => {
  * provided. By default ASTq has adapters for use with ASTy, XML DOM, Parse5 and
  * Mozilla AST. 
  */
-interface ASTQAdapter<Node = any> {
+export interface ASTQAdapter<Node = any> {
   /**
    * Taste node to be sure this adapter is intended to handle it.
    */
@@ -131,7 +131,7 @@ interface ASTQAdapter<Node = any> {
   getNodeAttrValue(node: Node, attr: string): any;
 }
 
-interface ASTQQuery<Node = any> {
+export interface ASTQQuery<Node = any> {
   /** 
    * Compile query selector into AST.
    */
@@ -156,7 +156,7 @@ interface ASTQQuery<Node = any> {
   /**
    * Same as [[serialize]] but it returns the JSON parsed object.
    */
-  toJSONObject(): SerializedNode
+  toJSONObject(): SerializedASTyNode
 
   /**
    * When giving [[trace]] equals true to [[execute]] the query object will be filled with an array of query
@@ -172,7 +172,7 @@ interface ASTQQuery<Node = any> {
   execute(node: Node, adapter: ASTQAdapter<Node>, params: any[], funcs: any[], trace?: boolean): Node[];
 }
 
-export = ASTQClass
+export default ASTQ
 
 type QueryExpressions = 'Query' | 'Path' | 'Step' | 'Step' | 'Axis' | 'Match' | 'Match' | 'Match' | 'Filter' | 'ConditionalBinary' | 'ConditionalTernary' | 'Logical' | 'Logical' | 'Bitwise' | 'Bitwise' | 'Bitwise' | 'Relational' | 'Bitwise' | 'Arithmetical' | 'Arithmetical' | 'Unary' | 'FuncCall' | 'Attribute' | 'Attribute' | 'Param' | 'Identifier' | 'LiteralString' | 'LiteralString' | 'LiteralRegExp' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue'
 
@@ -199,23 +199,23 @@ interface QueryStepTrace {
 interface ASTyNode {
   //   add: add(...args) { if (args.length === 0) throw new Error("add: invalid number of arguments"); let
   //   _add = node => {…}
-  attrs(): ASTYNodeAttrs
+  attrs(): ASTyNodeAttrs
   child(pos: number): ASTyNode | undefined
   childs(): ASTyNode[]
   childs(...c: ASTyNode[]): void
-  create(T: string, A: ASTYNodeAttrs, C: SerializedNode[]): ASTyNode
+  create(T: string, A: ASTyNodeAttrs, C: SerializedASTyNode[]): ASTyNode
   // del: del(...args) { if (args.length === 0) throw new Error("del: invalid number of arguments");
   // args.forEach(node => {…}
   dump(maxDepth: number, colorize: (type: string, txt: string) => string): string
   // get: get(...args) { if (args.length !== 1) throw new Error("get: invalid number of arguments"); if
   // (typeof args[0] === "object" && args[0] instanceof Array) { return args[0].map(key => {…}
-  init(ctx: ASTYCtx, T: string, A: ASTYNodeAttrs, C: SerializedNode[]): ASTyNode
+  init(ctx: ASTYCtx, T: string, A: ASTyNodeAttrs, C: SerializedASTyNode[]): ASTyNode
   ins(pos: number, ...args: any[]): void
-  merge(node: ASTyNode, takePos: boolean, attrMap: ASTYNodeAttrs): ASTyNode
+  merge(node: ASTyNode, takePos: boolean, attrMap: ASTyNodeAttrs): ASTyNode
   nth(): any
   parent(): ASTyNode
   pos(line: number, column: number, offset: number): void
-  pos(): DumpedNodeLocation
+  pos(): SerializedASTyNodeLocation
   /** 
    * returns the JSON string of [[DumpedNode]], meaning that JSON.parse(node.serialize()) is DumpedNode. This
    * also works to deserialize the object and convert it back to a ASTYNode:
@@ -229,7 +229,7 @@ interface ASTyNode {
   // unset: unset(...args) { if (args.length === 1 && typeof args[0] === "object" && args[0] instanceof Array)
   // { args[0].forEach(key => {…} walk: walk(cb, when = "downward") { let _walk = (node, depth, parent) => {…}
 }
-interface ASTYNodeAttrs {
+interface ASTyNodeAttrs {
   [name: string]: any
 }
 
@@ -237,7 +237,7 @@ interface ASTYNodeAttrs {
 * Serialized version of `ASTYNode` Format of ASTYNode.serialize output string
 * @internal 
 * */
-interface SerializedNode {
+interface SerializedASTyNode {
   /**
    * Node's type name.
    */
@@ -245,18 +245,18 @@ interface SerializedNode {
   /**
    * Node's location in the initial query string
    */
-  L: DumpedNodeLocation
+  L: SerializedASTyNodeLocation
   /**
    * Node's children
    */
-  C: SerializedNode[]
+  C: SerializedASTyNode[]
   /**
    * Node's attributes
    */
-  A: ASTYNodeAttrs
+  A: ASTyNodeAttrs
 }
 
-interface DumpedNodeLocation {
+interface SerializedASTyNodeLocation {
   /**
    * Line number
    */
@@ -272,7 +272,7 @@ interface DumpedNodeLocation {
 }
 
 /** 
-* Internal part of Node implementation of the query's AST. https://github.com/rse/asty
+* Internal part of Node implementation of the query's AST. https://github.com/rse/asty.
 * @internal 
 * */
 interface ASTYCtx {
