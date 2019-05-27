@@ -27,7 +27,6 @@
 import util from "./astq-util.js"
 
 export default class ASTQQueryTrace {
-
     constructor (adapter, params, funcs, trace) {
         this.adapter = adapter
         this.params  = params

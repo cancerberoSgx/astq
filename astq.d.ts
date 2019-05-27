@@ -126,8 +126,9 @@ export interface StepTraceEvent<Node = any> {
   * `endStep` means when all the input nodes for this step where filtered and the step is done, At 
   * this point the total step time is measured and the final node list resulting from this step is 
   * also, which will be in turn be next step input or the final result if this is the last step.
-   */
-  event: "beginStep" | "endStep" | 'finishSearch' | 'startSearch'
+  * `finishCompile` and `startCompile` events but with less data, relevant: query ast and searchtotaltime
+  */
+  event: "beginStep" | "endStep" | 'finishSearch' | 'startSearch'|'startCompile'|'finishCompile'
 
   /**
    * Query AST node being processing user nodes at this step.
@@ -148,7 +149,7 @@ export interface StepTraceEvent<Node = any> {
   /**
   * Friendly msg representing this step state
   */
-  traceMsg: string
+  traceMsg?: string
 
   /**w
    * Current nodes matches at the end of this step. 
@@ -159,6 +160,16 @@ export interface StepTraceEvent<Node = any> {
 
   totalSearchTime?: number
 
+  /** 
+   * Available when event === 'finishCompile'
+   */
+  queryAst?: ASTyNode
+
+  /**
+   * Available when event === 'finishCompile'
+   * 
+   */
+  totalCompileTime?: number
 }
 
 /**

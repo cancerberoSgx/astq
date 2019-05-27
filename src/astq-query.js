@@ -49,12 +49,24 @@ export default class ASTQQuery {
             this.compile(selector)
     }
 
-  /*  compile query selector into AST  */
+    /*  compile query selector into AST  */
     compile (selector, trace) {
-        if (trace)
-            console.log("ASTQ: compile: +---------------------------------------" +
-                "----------------------------------------------------------------\n" +
-                "ASTQ: compile: | " + selector)
+        let t0
+        if (trace) {
+            if (typeof trace === "function") {
+                t0 = Date.now()
+                trace({
+                    event: "startCompile",
+                    selector,
+                    timestamp: t0
+                })
+            }
+            else {
+                console.log("ASTQ: compile: +---------------------------------------" +
+                  "----------------------------------------------------------------\n" +
+                  "ASTQ: compile: | " + selector)
+            }
+        }
         let result = PEGUtil.parse(ASTQQueryParse, selector, {
             startRule: "query",
             makeAST: (line, column, offset, args) => {
@@ -65,10 +77,25 @@ export default class ASTQQuery {
             throw new Error("ASTQ: compile: query parsing failed:\n" +
                 PEGUtil.errorMessage(result.error, true).replace(/^/mg, "ERROR: "))
         this.ast = result.ast
-        if (trace)
-            console.log("ASTQ: compile: +---------------------------------------" +
-                "----------------------------------------------------------------\n" +
-                this.dump().replace(/\n$/, "").replace(/^/mg, "ASTQ: compile: | "))
+        if (trace) {
+            const traceMsg = "ASTQ: compile: +---------------------------------------" +
+              "----------------------------------------------------------------\n" +
+              this.dump().replace(/\n$/, "").replace(/^/mg, "ASTQ: compile: | ")
+            if (typeof trace === "function") {
+                const t = Date.now()
+                trace({
+                    event: "finishCompile",
+                    selector,
+                    traceMsg,
+                    queryAst: this.ast && this.ast.serialize(),
+                    totalCompileTime: t - t0,
+                    timestamp: t
+                })
+            }
+            else {
+                console.log(traceMsg)
+            }
+        }
         return this
     }
 
@@ -103,7 +130,7 @@ export default class ASTQQuery {
                     queryNode: this.ast,
                     nodeDepth: 0,
                     queryNodeDepth: 0,
-                    timestamp: t0,
+                    timestamp: t0
                 })
             }
             console.log("ASTQ: execute: +---------------------------------------" +
