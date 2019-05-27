@@ -1,96 +1,96 @@
-declare class ASTQ<Node = any> {
+declare class ASTQClass<Node = any> {
 
-    /**
-     * Create a new ASTQ instance.
-     */
-    constructor();
-    
-    /**
-     * Register one or more custom tree access adapter(s) to support arbitrary
-     * AST-style data structures. 
-     *
-     * The `ASTQAdapter` has to conform to a particular duck-typed interface. See
-     * below for more information. 
-     *
-     * By default ASTq has built-in adapters for ASTy, XML DOM, Parse5, Cheerio,
-     * JSON and Mozilla AST. All those "taste" the node passed to `ASTQ#query` and
-     * hence are auto-selected. 
-     *
-     * Calling `adapter()` causes these to be replaced with a single custom
-     * adapter. 
-     *
-     * Its "tasting" can be disabled with option `force` set to `true`. The
-     * `ASTQ#adapter` returns the API itself.
-     *
+  /**
+   * Create a new ASTQ instance.
+   */
+  constructor();
+
+  /**
+   * Register one or more custom tree access adapter(s) to support arbitrary
+   * AST-style data structures. 
+   *
+   * The `ASTQAdapter` has to conform to a particular duck-typed interface. See
+   * below for more information. 
+   *
+   * By default ASTq has built-in adapters for ASTy, XML DOM, Parse5, Cheerio,
+   * JSON and Mozilla AST. All those "taste" the node passed to `ASTQ#query` and
+   * hence are auto-selected. 
+   *
+   * Calling `adapter()` causes these to be replaced with a single custom
+   * adapter. 
+   *
+   * Its "tasting" can be disabled with option `force` set to `true`. The
+   * `ASTQ#adapter` returns the API itself.
+   *
 ```js
 // the built-in implementation for supporting ASTy 
 astq.adapter({
-    taste:            function (node)       { return (typeof node === "object" && node.ASTy) },
-    getParentNode:    function (node, type) { return node.parent()  },
-    getChildNodes:    function (node, type) { return node.childs()  },
-    getNodeType:      function (node)       { return node.type()    },
-    getNodeAttrNames: function (node)       { return node.attrs()   },
-    getNodeAttrValue: function (node, attr) { return node.get(attr) }
+  taste:            function (node)       { return (typeof node === "object" && node.ASTy) },
+  getParentNode:    function (node, type) { return node.parent()  },
+  getChildNodes:    function (node, type) { return node.childs()  },
+  getNodeType:      function (node)       { return node.type()    },
+  getNodeAttrNames: function (node)       { return node.attrs()   },
+  getNodeAttrValue: function (node, attr) { return node.get(attr) }
 })
 ```
-     */
-    adapter(adapter: ASTQAdapter<Node> | ASTQAdapter<Node>[], force?: boolean): ASTQ;
+   */
+  adapter(adapter: ASTQAdapter<Node> | ASTQAdapter<Node>[], force?: boolean): ASTQClass;
 
-    /**
-     * Return the current ASTQ library version details.
-     */
-    version(): { major: number, minor: number, micro: number, date: number };
+  /**
+   * Return the current ASTQ library version details.
+   */
+  version(): { major: number, minor: number, micro: number, date: number };
 
-    /**
-     * Register function named name by providing the callback func which has to
-     * return an arbitrary value and optionally can access the current node with
-     * the help of the selected adapter. Returns the API itself.
-     *
+  /**
+   * Register function named name by providing the callback func which has to
+   * return an arbitrary value and optionally can access the current node with
+   * the help of the selected adapter. Returns the API itself.
+   *
 ```js
 // the built-in implementation for "depth"  
 astq.func("depth", function (adapter, node) => {
-    var depth = 1
-    while ((node = adapter.getParentNode(node)) !== null)
-        depth++
-    return depth
+  var depth = 1
+  while ((node = adapter.getParentNode(node)) !== null)
+      depth++
+  return depth
 })
-  ```
-     */
-    func(name: string, func: (adapter: ASTQAdapter<Node>, node: Node, ...args: any[]) => any): ASTQ;
+```
+   */
+  func(name: string, func: (adapter: ASTQAdapter<Node>, node: Node, ...args: any[]) => any): ASTQClass;
 
-    /**
-     * Set the upper limit for the internal query cache to `num`, i.e., up to
-     * `num` ASTs of parsed queries will be cached. 
-     *
-     * Set `num` to 0 to disable the cache at all. Returns the API itself.
-     */
-    cache(num: number): ASTQ;
+  /**
+   * Set the upper limit for the internal query cache to `num`, i.e., up to
+   * `num` ASTs of parsed queries will be cached. 
+   *
+   * Set `num` to 0 to disable the cache at all. Returns the API itself.
+   */
+  cache(num: number): ASTQClass;
 
-    /**
-     * Compile `selector` DSL into an internal query object for subsequent
-     * processing by `execute`. If [trace] is `true` the compiling is dumped
-     * to the console. Returns the query object.
-     */
-    compile(selector: string, trace?: boolean): ASTQQuery<Node>;
+  /**
+   * Compile `selector` DSL into an internal query object for subsequent
+   * processing by `execute`. If [trace] is `true` the compiling is dumped
+   * to the console. Returns the query object.
+   */
+  compile(selector: string, trace?: boolean): ASTQQuery<Node>;
 
-    /**
-     * Execute the previously compiled `query` (see compile above) at `node`. The
-     * optional `params` object can provide parameters for the {name} query
-     * constructs. If `trace` is `true` the execution is dumped to the console.
-     * Returns an array of zero or more matching AST nodes.
-     */
-    execute(node: Node, query: ASTQQuery<Node>, params?: any, trace?: boolean): Node[];
+  /**
+   * Execute the previously compiled `query` (see compile above) at `node`. The
+   * optional `params` object can provide parameters for the {name} query
+   * constructs. If `trace` is `true` the execution is dumped to the console.
+   * Returns an array of zero or more matching AST nodes.
+   */
+  execute(node: Node, query: ASTQQuery<Node>, params?: any, trace?: boolean): Node[];
 
-    /**
-     * Just the convenient combination of compile and execute: 
-     * `execute(node, compile(selector, trace), params, trace)`. 
-     *
-     * Use this as the standard query method except you need more control. The
-     * optional `params` object can provide parameters for the {name} query
-     * constructs. If `trace` is true the compiling and execution is dumped to the
-     * console. Returns an array of zero or more matching AST nodes.
-     */
-    query(node: Node, selector: String, params?: any, trace?: boolean): Node[];
+  /**
+   * Just the convenient combination of compile and execute: 
+   * `execute(node, compile(selector, trace), params, trace)`. 
+   *
+   * Use this as the standard query method except you need more control. The
+   * optional `params` object can provide parameters for the {name} query
+   * constructs. If `trace` is true the compiling and execution is dumped to the
+   * console. Returns an array of zero or more matching AST nodes.
+   */
+  query(node: Node, selector: String, params?: any, trace?: boolean): Node[];
 }
 
 /**
@@ -99,90 +99,134 @@ astq.func("depth", function (adapter, node) => {
  * Mozilla AST. 
  */
 interface ASTQAdapter<Node = any> {
-    /**
-     * Taste node to be sure this adapter is intended to handle it.
-     */
-    taste(node: any): boolean;
+  /**
+   * Taste node to be sure this adapter is intended to handle it.
+   */
+  taste(node: any): boolean;
 
-    /**
-     * Return parent node of `node`. In case the underlying data structure
-     * does not support traversing to parent nodes, throw an exception.
-     */
-    getParentNode(node: Node): Node | undefined;
+  /**
+   * Return parent node of `node`. In case the underlying data structure
+   * does not support traversing to parent nodes, throw an exception.
+   */
+  getParentNode(node: Node): Node | undefined;
 
-    /**
-     * Return the list of all child nodes of `node`.
-     */
-    getChildNodes(node: Node): Node[];
+  /**
+   * Return the list of all child nodes of `node`.
+   */
+  getChildNodes(node: Node): Node[];
 
-    /**
-     * Return the type of `node`.
-     */
-    getNodeType(node: Node): string;
+  /**
+   * Return the type of `node`.
+   */
+  getNodeType(node: Node): string;
 
-    /**
-     * Return the list of all attribute names of `node`.
-     */
-    getNodeAttrNames(node: Node): string[];
+  /**
+   * Return the list of all attribute names of `node`.
+   */
+  getNodeAttrNames(node: Node): string[];
 
-    /**
-     * Return the value of attribute `attr` of `node`.
-     */
-    getNodeAttrValue(node: Node, attr: string): any;
+  /**
+   * Return the value of attribute `attr` of `node`.
+   */
+  getNodeAttrValue(node: Node, attr: string): any;
 }
 
 interface ASTQQuery<Node = any> {
-    /** 
-     * Compile query selector into AST.
-     */
-    compile(selector: string, trace?: boolean): ASTQQuery;
+  /** 
+   * Compile query selector into AST.
+   */
+  compile(selector: string, trace?: boolean): ASTQQuery;
 
-    /** 
-     * Dump the query AST.
-     */
-    dump(): string;
+  /** 
+   * Dumps the query AST.
+   */
+  dump(): string;
 
-    ast: ASTYNode
+  /**
+   * Internal query's AST object builded when compiled. 
+   * @internal
+   */
+  ast: ASTYNode
 
-    /**
-     * Execute the query AST onto `node`.
-     */
-    execute(node: Node, adapter: ASTQAdapter<Node>, params: any[], funcs: any[], trace?: boolean): Node[];
+  /**
+   * When giving [[trace]] equals true to [[execute]] the query object will be filled with an array of query
+   * step trace objects that contain the state of the search on each stap, before and after it finish, the
+   * current matched values, timings levels. Whit this information is possible to represent visually the
+   * search process with timings and how it was resolved, step, byt step.
+   */
+  lastTrace: QueryStepTrace[]
+
+  /**
+   * Execute the query AST onto `node`.
+   */
+  execute(node: Node, adapter: ASTQAdapter<Node>, params: any[], funcs: any[], trace?: boolean): Node[];
 }
 
-export = ASTQ;
+export = ASTQClass
+
+type QueryExpressions = 'Query'|'Path'|'Step'|'Step'|'Axis'|'Match'|'Match'|'Match'|'Filter'|'ConditionalBinary'|'ConditionalTernary'|'Logical'|'Logical'|'Bitwise'|'Bitwise'|'Bitwise'|'Relational'|'Bitwise'|'Arithmetical'|'Arithmetical'|'Unary'|'FuncCall'|'Attribute'|'Attribute'|'Param'|'Identifier'|'LiteralString'|'LiteralString'|'LiteralRegExp'|'LiteralNumber'|'LiteralNumber'|'LiteralNumber'|'LiteralNumber'|'LiteralNumber'|'LiteralValue'|'LiteralValue'|'LiteralValue'|'LiteralValue'|'LiteralValue'
+
+interface QueryStepTrace{
+  event: 'end'|'begin',
+  prefix1: string
+  prefix2: string
+  queryType: QueryExpressions
+  nodeType: string
+  /**
+   * Timestamp taken when the query step begin or ended, so when joining all query steps it's possible to obtain the number of milliseconds it took. 
+   */
+  timestamp: number
+  /**
+   * Node types array that matched in the step (will be the input of next step)
+   */
+  value: string[]
+}
 
 /** 
- * Internal Node implementation of the query's AST. https://github.com/rse/asty
- * @internal 
- * */
-interface ASTYNode{
-//   add: add(...args) { if (args.length === 0) throw new Error("add: invalid number of arguments"); let _add = node => {…}
-attrs(): Attrs
- child(pos: number): ASTYNode|undefined
-childs(): ASTYNode[]
-childs(...c: ASTYNode[]): void
- create(T:string, A: Attrs, C: DumpedNode[]): ASTYNode
-// del: del(...args) { if (args.length === 0) throw new Error("del: invalid number of arguments"); args.forEach(node => {…}
- dump(maxDepth = Infinity, colorize = (type, txt) => aby): string
-// get: get(...args) { if (args.length !== 1) throw new Error("get: invalid number of arguments"); if (typeof args[0] === "object" && args[0] instanceof Array) { return args[0].map(key => {…}
-  init(ctx: ASTYCts,T:string, A: Attrs, C: DumpedNode[]): ASTYNode
-ins: ins(pos: number, ...args_ any[]): void
- merge(node: ASTYNode, takePos = false, attrMap = Attrs) : ASTYNode
-nth(): TODO
-parent(): ASTYNode
- pos(line: number, column: number, offset: number): void
- pos(): DumpedNodeLocation
- /** returns the JSON string of [[DumpedNode]], meaning that JSON.parse(node.serialize()) is DumpedNode. This also works to deserialize the object and convert it back to a ASTYNode: `query.ast.ctx.constructor.unserialize(query.ast.serialize())` */
-serialize(): string
-// set: set(...args) { if (args.length === 1 && typeof args[0] === "object") { Object.keys(args[0]).forEach(key => {…}
-type(): string
-type(t: string): void
-// unset: unset(...args) { if (args.length === 1 && typeof args[0] === "object" && args[0] instanceof Array) { args[0].forEach(key => {…}
-// walk: walk(cb, when = "downward") { let _walk = (node, depth, parent) => {…}
+* Internal Node implementation of the query's AST. https://github.com/rse/asty
+* @internal 
+* */
+interface ASTYNode {
+  //   add: add(...args) { if (args.length === 0) throw new Error("add: invalid number of arguments"); let
+  //   _add = node => {…}
+  attrs(): ASTYNodeAttrs
+  child(pos: number): ASTYNode | undefined
+  childs(): ASTYNode[]
+  childs(...c: ASTYNode[]): void
+  create(T: string, A: ASTYNodeAttrs, C: DumpedNode[]): ASTYNode
+  // del: del(...args) { if (args.length === 0) throw new Error("del: invalid number of arguments");
+  // args.forEach(node => {…}
+  dump(maxDepth: number, colorize: (type: string, txt: string) => string): string
+  // get: get(...args) { if (args.length !== 1) throw new Error("get: invalid number of arguments"); if
+  // (typeof args[0] === "object" && args[0] instanceof Array) { return args[0].map(key => {…}
+  init(ctx: ASTYCtx, T: string, A: ASTYNodeAttrs, C: DumpedNode[]): ASTYNode
+  ins(pos: number, ...args: any[]): void
+  merge(node: ASTYNode, takePos: boolean, attrMap: ASTYNodeAttrs): ASTYNode
+  nth(): any
+  parent(): ASTYNode
+  pos(line: number, column: number, offset: number): void
+  pos(): DumpedNodeLocation
+  /** 
+   * returns the JSON string of [[DumpedNode]], meaning that JSON.parse(node.serialize()) is DumpedNode. This
+   * also works to deserialize the object and convert it back to a ASTYNode:
+   * `query.ast.ctx.constructor.unserialize(query.ast.serialize())` 
+   */
+  serialize(): string
+  // set: set(...args) { if (args.length === 1 && typeof args[0] === "object") {
+  // Object.keys(args[0]).forEach(key => {…}
+  type(): string
+  type(t: string): void
+  // unset: unset(...args) { if (args.length === 1 && typeof args[0] === "object" && args[0] instanceof Array)
+  // { args[0].forEach(key => {…} walk: walk(cb, when = "downward") { let _walk = (node, depth, parent) => {…}
+}
+interface ASTYNodeAttrs {
+  [name: string]: any
 }
 
-
+/** 
+* Serialized version of `ASTYNode` Format of ASTYNode.serialize output string
+* @internal 
+* */
 interface DumpedNode {
   /**
    * Node's type name.
@@ -191,7 +235,7 @@ interface DumpedNode {
   /**
    * Node's location in the initial query string
    */
-  L: DumpedNodeLocation 
+  L: DumpedNodeLocation
   /**
    * Node's children
    */
@@ -199,14 +243,14 @@ interface DumpedNode {
   /**
    * Node's attributes
    */
-  A: Attrs
+  A: ASTYNodeAttrs
 }
 
-interface  DumpedNodeLocation {
+interface DumpedNodeLocation {
   /**
    * Line number
    */
-  L:number
+  L: number
   /**
    * Column number
    */
@@ -215,4 +259,12 @@ interface  DumpedNodeLocation {
    * Offset
    */
   '0': number
+}
+
+/** 
+* Internal part of Node implementation of the query's AST. https://github.com/rse/asty
+* @internal 
+* */
+interface ASTYCtx {
+
 }
