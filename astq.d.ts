@@ -97,6 +97,10 @@ astq.func("depth", function (adapter, node) => {
  * For accessing arbitrary AST-style data structures, an adapter has to be
  * provided. By default ASTq has adapters for use with ASTy, XML DOM, Parse5 and
  * Mozilla AST. 
+ * 
+ * **IMPORTANT** Types are strictly checked, and in particular getParentNode and getNodeAttrValue
+ * must return exactly null if there is no value. Other falsy values will be consider as  
+ * non-null and could cause infinite recursion. 
  */
 export interface ASTQAdapter<Node = any> {
   /**
@@ -108,7 +112,7 @@ export interface ASTQAdapter<Node = any> {
    * Return parent node of `node`. In case the underlying data structure
    * does not support traversing to parent nodes, throw an exception.
    */
-  getParentNode(node: Node): Node | undefined;
+  getParentNode(node: Node): Node | null;
 
   /**
    * Return the list of all child nodes of `node`.
@@ -118,7 +122,7 @@ export interface ASTQAdapter<Node = any> {
   /**
    * Return the type of `node`.
    */
-  getNodeType(node: Node): string;
+  getNodeType(node: Node): string|null;
 
   /**
    * Return the list of all attribute names of `node`.
@@ -128,8 +132,9 @@ export interface ASTQAdapter<Node = any> {
   /**
    * Return the value of attribute `attr` of `node`.
    */
-  getNodeAttrValue(node: Node, attr: string): any;
+  getNodeAttrValue(node: Node, attr: string): any|null;
 }
+
 
 export interface ASTQQuery<Node = any> {
   /** 
@@ -206,7 +211,7 @@ interface ASTyNode {
   create(T: string, A: ASTyNodeAttrs, C: SerializedASTyNode[]): ASTyNode
   // del: del(...args) { if (args.length === 0) throw new Error("del: invalid number of arguments");
   // args.forEach(node => {…}
-  dump(maxDepth: number, colorize: (type: string, txt: string) => string): string
+  dump(maxDepth?: number, colorize?: (type: string, txt: string) => string): string
   // get: get(...args) { if (args.length !== 1) throw new Error("get: invalid number of arguments"); if
   // (typeof args[0] === "object" && args[0] instanceof Array) { return args[0].map(key => {…}
   init(ctx: ASTYCtx, T: string, A: ASTyNodeAttrs, C: SerializedASTyNode[]): ASTyNode

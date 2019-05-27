@@ -361,7 +361,13 @@ TypeScript type definitions):
 
 For accessing arbitrary AST-style data structures, an adapter has to be
 provided. By default ASTq has adapters for use with ASTy, XML DOM, Parse5 and
-Mozilla AST. The `ASTQAdapter` interface is:
+Mozilla AST. 
+
+**IMPORTANT** Types are strictly checked, and in particular `getParentNode` and `getNodeAttrValue`
+must return exactly `null` if there is no value. Other falsy values even undefined, will be 
+considered as non-null values and could cause infinite recursions or similar unexpected behavior..   
+
+The `ASTQAdapter` interface is:
 
 - `ASTQAdapter#taste(node: Object): Boolean`:<br/>
   Taste `node` to be sure this adapter is intended to handle it.
