@@ -60,7 +60,7 @@
         "node": ">=4.0.0"
     },
     "scripts": {
-        "prepublishOnly": "grunt default",
+        "prepare": "grunt default",
         "build": "grunt default",
         "test": "grunt mochaTest"
     }
