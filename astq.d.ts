@@ -121,9 +121,13 @@ export interface StepTraceEvent<Node = any> {
   meta?: any
 
   /**
-   * `begin` means just before user node is being filter by current step according to `queryNode` 
+  * `startSearch` means just before the (entire) search starts, and `finishSearch` the contrary
+  * `beginStep` means just before user node is being filter by current step according to `queryNode` 
+  * `endStep` means when all the input nodes for this step where filtered and the step is done, At 
+  * this point the total step time is measured and the final node list resulting from this step is 
+  * also, which will be in turn be next step input or the final result if this is the last step.
    */
-  event: 'begin' | 'end'
+  event: "beginStep" | "endStep" | 'finishSearch' | 'startSearch'
 
   /**
    * Query AST node being processing user nodes at this step.
@@ -149,7 +153,7 @@ export interface StepTraceEvent<Node = any> {
   /**w
    * Current nodes matches at the end of this step. 
    * These nodes will be the input for the next step. 
-   * This property is only defined for event=='end'
+   * This property is only defined for event=="endStep"
    */
   matches?: Node[]
 

@@ -49,7 +49,7 @@ export default class ASTQQuery {
             this.compile(selector)
     }
 
-    /*  compile query selector into AST  */
+  /*  compile query selector into AST  */
     compile (selector, trace) {
         if (trace)
             console.log("ASTQ: compile: +---------------------------------------" +
@@ -93,11 +93,39 @@ export default class ASTQQuery {
 
     /*  execute the query AST onto node  */
     execute (node, adapter, params, funcs, trace) {
-        if (trace)
+        let t0
+        if (trace) {
+            if (typeof trace === "function") {
+                t0 = Date.now()
+                trace({
+                    event: "startSearch",
+                    node,
+                    queryNode: this.ast,
+                    nodeDepth: 0,
+                    queryNodeDepth: 0,
+                    timestamp: t0,
+                })
+            }
             console.log("ASTQ: execute: +---------------------------------------" +
                 "-----------------------+----------------------------------------")
+        }
         let qe = new ASTQQueryExec(adapter, params, funcs, trace)
-        return qe.execQuery(this.ast, node)
+        const result = qe.execQuery(this.ast, node)
+        if (typeof trace === "function") {
+            const timestamp = Date.now()
+            trace({
+                event: "finishSearch",
+                node,
+                matches: result,
+                queryNode: this.ast,
+                nodeDepth: 0,
+                queryNodeDepth: 0,
+                timestamp,
+                totalSearchTime: timestamp - t0,
+                traceMsg: "Search ends"
+            })
+        }
+        return result
     }
 }
 

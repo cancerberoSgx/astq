@@ -27,9 +27,7 @@
 import util from "./astq-util.js"
 
 export default class ASTQQueryTrace {
-    /**
-     * @property trace { boolean | undefined| ((event: 'begin'|'end', queryNode: any, node: Node)=>void) }
-     */
+
     constructor (adapter, params, funcs, trace) {
         this.adapter = adapter
         this.params  = params
@@ -62,7 +60,7 @@ export default class ASTQQueryTrace {
         prefix2 + this.adapter.getNodeType(T)
         if (typeof this.trace === "function") {
             this.trace({
-                event: "begin",
+                event: "beginStep",
                 nodeDepth, queryNodeDepth,
                 queryNode: Q,
                 node: T,
@@ -101,7 +99,7 @@ export default class ASTQQueryTrace {
             prefix2 + this.adapter.getNodeType(T)
         if (typeof this.trace === "function" ) {
             this.trace({
-                event: "end",
+                event: "endStep",
                 nodeDepth,
                 queryNodeDepth,
                 queryNode: Q,
