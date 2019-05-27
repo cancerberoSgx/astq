@@ -157,6 +157,8 @@ export interface StepTraceEvent<Node = any> {
    */
   matches?: Node[]
 
+  totalSearchTime?: number
+
 }
 
 /**
