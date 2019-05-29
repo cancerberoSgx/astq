@@ -133,7 +133,7 @@ export interface StepTraceEvent<Node = any> {
   /**
    * Query AST node being processing user nodes at this step.
    */
-  queryNode: ASTyNode
+  queryNode: ASTQQueryNode
 
   /**
    * User Node being processed at this moment. 
@@ -161,9 +161,9 @@ export interface StepTraceEvent<Node = any> {
   totalSearchTime?: number
 
   /** 
-   * Available when event === 'finishCompile'
+   * Available when event === 'finishCompile'. Serialized query AST as string generated when compile ends. 
    */
-  queryAst?: ASTyNode
+  queryAst?: string
 
   /**
    * Available when event === 'finishCompile'
@@ -230,7 +230,7 @@ export interface ASTQQuery<Node = any> {
    * Internal query's AST object builded when compiled. 
    * @internal
    */
-  ast: ASTyNode
+  ast: ASTQQueryNode
 
   /**
    * Serializes this query instance as a json string.
@@ -240,7 +240,7 @@ export interface ASTQQuery<Node = any> {
   /**
    * Same as [[serialize]] but it returns the JSON parsed object.
    */
-  toJSONObject(): SerializedASTyNode
+  toJSONObject(): ASTQQueryNodeData
 
   /**
    * Execute the query AST onto `node`.
@@ -256,28 +256,28 @@ export type QueryExpressions = 'Query' | 'Path' | 'Step' | 'Step' | 'Axis' | 'Ma
 * Internal Node implementation of the query's AST. https://github.com/rse/asty
 * @internal 
 * */
-interface ASTyNode {
+export interface ASTQQueryNode extends ASTQQueryNodeData {
 
   /** TODO */
   add(...any: any[]): any
   attrs(): ASTyNodeAttrs
-  child(pos: number): ASTyNode | undefined
-  childs(): ASTyNode[]
+  child(pos: number): ASTQQueryNode | undefined
+  childs(): ASTQQueryNode[]
   /** TODO */
-  childs(...c: ASTyNode[]): void
-  create(T: string, A: ASTyNodeAttrs, C: SerializedASTyNode[]): ASTyNode
+  childs(...c: ASTQQueryNode[]): void
+  create(T: string, A: ASTyNodeAttrs, C: ASTQQueryNodeData[]): ASTQQueryNode
   /** TODO */
   del(...args: any[]): any
   dump(maxDepth?: number, colorize?: (type: string, txt: string) => string): string
   /** TODO */
   get(...args: any[]): any
-  init(ctx: ASTYCtx, T: string, A: ASTyNodeAttrs, C: SerializedASTyNode[]): ASTyNode
+  init(ctx: ASTYCtx, T: string, A: ASTyNodeAttrs, C: ASTQQueryNodeData[]): ASTQQueryNode
   ins(pos: number, ...args: any[]): void
-  merge(node: ASTyNode, takePos: boolean, attrMap: ASTyNodeAttrs): ASTyNode
+  merge(node: ASTQQueryNode, takePos: boolean, attrMap: ASTyNodeAttrs): ASTQQueryNode
   nth(): any
-  parent(): ASTyNode
+  parent(): ASTQQueryNode
   pos(line: number, column: number, offset: number): void
-  pos(): SerializedASTyNodeLocation
+  pos(): ASTQQueryNodeDataLocation
   /** 
    * returns the JSON string of [[DumpedNode]], meaning that JSON.parse(node.serialize()) is DumpedNode. This
    * also works to deserialize the object and convert it back to a ASTYNode:
@@ -299,7 +299,7 @@ interface ASTyNodeAttrs {
 * Serialized version of `ASTYNode` Format of ASTYNode.serialize output string
 * @internal 
 * */
-interface SerializedASTyNode {
+export interface ASTQQueryNodeData {
   /**
    * Node's type name.
    */
@@ -307,18 +307,18 @@ interface SerializedASTyNode {
   /**
    * Node's location in the initial query string
    */
-  L: SerializedASTyNodeLocation
+  L: ASTQQueryNodeDataLocation
   /**
    * Node's children
    */
-  C: SerializedASTyNode[]
+  C: ASTQQueryNodeData[]
   /**
    * Node's attributes
    */
   A: ASTyNodeAttrs
 }
 
-interface SerializedASTyNodeLocation {
+interface ASTQQueryNodeDataLocation {
   /**
    * Line number
    */
