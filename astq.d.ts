@@ -1,3 +1,5 @@
+import { ASTYNode, ASTQQueryNodeData } from './asty';
+
 declare class ASTQ<Node = any> {
 
   /**
@@ -128,12 +130,12 @@ export interface StepTraceEvent<Node = any> {
   * also, which will be in turn be next step input or the final result if this is the last step.
   * `finishCompile` and `startCompile` events but with less data, relevant: query ast and searchtotaltime
   */
-  event: "beginStep" | "endStep" | 'finishSearch' | 'startSearch'|'startCompile'|'finishCompile'
+  event: "beginStep" | "endStep" | 'finishSearch' | 'startSearch' | 'startCompile' | 'finishCompile'
 
   /**
    * Query AST node being processing user nodes at this step.
    */
-  queryNode: ASTQQueryNode
+  queryNode: ASTYNode
 
   /**
    * User Node being processed at this moment. 
@@ -230,7 +232,7 @@ export interface ASTQQuery<Node = any> {
    * Internal query's AST object builded when compiled. 
    * @internal
    */
-  ast: ASTQQueryNode
+  ast: ASTYNode
 
   /**
    * Serializes this query instance as a json string.
@@ -250,92 +252,4 @@ export interface ASTQQuery<Node = any> {
 
 export default ASTQ
 
-export type QueryExpressions = 'Query' | 'Path' | 'Step' | 'Step' | 'Axis' | 'Match' | 'Match' | 'Match' | 'Filter' | 'ConditionalBinary' | 'ConditionalTernary' | 'Logical' | 'Logical' | 'Bitwise' | 'Bitwise' | 'Bitwise' | 'Relational' | 'Bitwise' | 'Arithmetical' | 'Arithmetical' | 'Unary' | 'FuncCall' | 'Attribute' | 'Attribute' | 'Param' | 'Identifier' | 'LiteralString' | 'LiteralString' | 'LiteralRegExp' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralNumber' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue' | 'LiteralValue'
 
-/** 
-* Internal Node implementation of the query's AST. https://github.com/rse/asty
-* @internal 
-* */
-export interface ASTQQueryNode extends ASTQQueryNodeData {
-
-  /** TODO */
-  add(...any: any[]): any
-  attrs(): ASTyNodeAttrs
-  child(pos: number): ASTQQueryNode | undefined
-  childs(): ASTQQueryNode[]
-  /** TODO */
-  childs(...c: ASTQQueryNode[]): void
-  create(T: string, A: ASTyNodeAttrs, C: ASTQQueryNodeData[]): ASTQQueryNode
-  /** TODO */
-  del(...args: any[]): any
-  dump(maxDepth?: number, colorize?: (type: string, txt: string) => string): string
-  /** TODO */
-  get(...args: any[]): any
-  init(ctx: ASTYCtx, T: string, A: ASTyNodeAttrs, C: ASTQQueryNodeData[]): ASTQQueryNode
-  ins(pos: number, ...args: any[]): void
-  merge(node: ASTQQueryNode, takePos: boolean, attrMap: ASTyNodeAttrs): ASTQQueryNode
-  nth(): any
-  parent(): ASTQQueryNode
-  pos(line: number, column: number, offset: number): void
-  pos(): ASTQQueryNodeDataLocation
-  /** 
-   * returns the JSON string of [[DumpedNode]], meaning that JSON.parse(node.serialize()) is DumpedNode. This
-   * also works to deserialize the object and convert it back to a ASTYNode:
-   * `query.ast.ctx.constructor.unserialize(query.ast.serialize())` 
-   */
-  serialize(): string
-  /** TODO */
-  set(...args: any): any
-  type(): QueryExpressions
-  type(t: QueryExpressions): void
-  /** TODO */
-  unset(...args: any[]): any
-}
-interface ASTyNodeAttrs {
-  [name: string]: any
-}
-
-/** 
-* Serialized version of `ASTYNode` Format of ASTYNode.serialize output string
-* @internal 
-* */
-export interface ASTQQueryNodeData {
-  /**
-   * Node's type name.
-   */
-  T: string
-  /**
-   * Node's location in the initial query string
-   */
-  L: ASTQQueryNodeDataLocation
-  /**
-   * Node's children
-   */
-  C: ASTQQueryNodeData[]
-  /**
-   * Node's attributes
-   */
-  A: ASTyNodeAttrs
-}
-
-interface ASTQQueryNodeDataLocation {
-  /**
-   * Line number
-   */
-  L: number
-  /**
-   * Column number
-   */
-  C: number
-  /**
-   * Offset
-   */
-  '0': number
-}
-
-/** 
- * TODO: remove this
-* Internal part of Node implementation of the query's AST. https://github.com/rse/asty. 
-* @internal 
-* */
-type ASTYCtx = any
